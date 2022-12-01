@@ -95,7 +95,7 @@ export default class UniverView extends React.PureComponent {
   }
   render() {
     return (
-      <div id="univer-demo" ref={this.ref} style={{ width: '600px', height: '300px' }}>
+      <div id="univer-demo" className='univer-demo' ref={this.ref}>
       </div>
     );
   }

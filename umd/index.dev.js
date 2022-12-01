@@ -9551,11 +9551,8 @@ class UniverView extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureCompo
   render() {
     return react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
       id: "univer-demo",
-      ref: this.ref,
-      style: {
-        width: '600px',
-        height: '300px'
-      }
+      className: "univer-demo",
+      ref: this.ref
     });
   }
 }
