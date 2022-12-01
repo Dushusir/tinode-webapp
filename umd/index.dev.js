@@ -5382,8 +5382,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var tinode_sdk__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! tinode-sdk */ "tinode-sdk");
 /* harmony import */ var tinode_sdk__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(tinode_sdk__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var _config_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../config.js */ "./src/config.js");
-/* harmony import */ var _univer_view_jsx__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./univer-view.jsx */ "./src/views/univer-view.jsx");
-
 
 
 
@@ -9459,6 +9457,22 @@ class UniverView extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureCompo
     _defineProperty(this, "ref", (0,react__WEBPACK_IMPORTED_MODULE_0__.createRef)());
   }
   componentDidMount() {
+    const type = this.props.type;
+    switch (type) {
+      case 'sheet':
+        this.initSheet();
+        break;
+      case 'doc':
+        this.initDoc();
+        break;
+      case 'slide':
+        this.initSlide();
+        break;
+      default:
+        break;
+    }
+  }
+  initSheet() {
     const {
       DEFAULT_WORKBOOK_DATA,
       univerSheetCustom,
@@ -9495,6 +9509,40 @@ class UniverView extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureCompo
     univerSheetCustom({
       coreConfig: workbookData,
       baseSheetsConfig: sheetConfig
+    });
+  }
+  initDoc() {
+    const {
+      univerDocCustom
+    } = UniverPreactTs;
+    const docConfig = {
+      container: this.ref.current,
+      layout: {
+        innerRight: false,
+        outerLeft: false,
+        infoBar: false,
+        toolBar: false
+      }
+    };
+    univerDocCustom({
+      baseDocsConfig: docConfig
+    });
+  }
+  initSlide() {
+    const {
+      univerSlideCustom
+    } = UniverPreactTs;
+    const slideConfig = {
+      container: this.ref.current,
+      layout: {
+        innerRight: false,
+        outerLeft: false,
+        infoBar: false,
+        toolBar: false
+      }
+    };
+    univerSlideCustom({
+      baseSlidesConfig: slideConfig
     });
   }
   componentWillUnmount() {
@@ -11599,9 +11647,20 @@ class BaseChatMessage extends (react__WEBPACK_IMPORTED_MODULE_0___default().Pure
     const fullDisplay = this.props.isGroup && this.props.response && (this.props.sequence == 'single' || this.props.sequence == 'last');
     let content = this.props.content;
     const attachments = [];
-    if (content === 'table') {
+    if (content === 'table' || content === 'sheet') {
       attachments.push(react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_views_univer_view_jsx__WEBPACK_IMPORTED_MODULE_8__["default"], {
-        key: new Date().getTime()
+        key: new Date().getTime(),
+        type: "sheet"
+      }));
+    } else if (content === 'doc') {
+      attachments.push(react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_views_univer_view_jsx__WEBPACK_IMPORTED_MODULE_8__["default"], {
+        key: new Date().getTime(),
+        type: "doc"
+      }));
+    } else if (content === 'slide') {
+      attachments.push(react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_views_univer_view_jsx__WEBPACK_IMPORTED_MODULE_8__["default"], {
+        key: new Date().getTime(),
+        type: "slide"
       }));
     } else if (this.props.mimeType == tinode_sdk__WEBPACK_IMPORTED_MODULE_2__.Drafty.getContentType() && tinode_sdk__WEBPACK_IMPORTED_MODULE_2__.Drafty.isValid(content)) {
       tinode_sdk__WEBPACK_IMPORTED_MODULE_2__.Drafty.attachments(content, (att, i) => {

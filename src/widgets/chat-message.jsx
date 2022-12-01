@@ -121,8 +121,12 @@ class BaseChatMessage extends React.PureComponent {
 
     let content = this.props.content;
     const attachments = [];
-    if(content === 'table'){
-      attachments.push(<UniverView key={new Date().getTime()}/>);
+    if(content === 'table' || content === 'sheet'){
+      attachments.push(<UniverView key={new Date().getTime()} type="sheet"/>);
+    }else if(content === 'doc'){
+      attachments.push(<UniverView key={new Date().getTime()} type="doc"/>);
+    }else if(content === 'slide'){
+      attachments.push(<UniverView key={new Date().getTime()} type="slide"/>);
     }
     else if (this.props.mimeType == Drafty.getContentType() && Drafty.isValid(content)) {
       Drafty.attachments(content, (att, i) => {
