@@ -9476,7 +9476,8 @@ class UniverView extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureCompo
     const {
       DEFAULT_WORKBOOK_DATA,
       univerSheetCustom,
-      UniverCore
+      UniverCore,
+      DEFAULT_FORMULA_DATA
     } = UniverPreactTs;
     const workbookData = UniverCore.Tools.deepClone(DEFAULT_WORKBOOK_DATA);
     workbookData.id = (0,_lib_utils__WEBPACK_IMPORTED_MODULE_1__.makeid)(6);

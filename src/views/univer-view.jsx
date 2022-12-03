@@ -23,7 +23,7 @@ export default class UniverView extends React.PureComponent {
   }
 
   initSheet() {
-    const { DEFAULT_WORKBOOK_DATA, univerSheetCustom, UniverCore } = UniverPreactTs
+    const { DEFAULT_WORKBOOK_DATA, univerSheetCustom, UniverCore,DEFAULT_FORMULA_DATA } = UniverPreactTs
     const workbookData = UniverCore.Tools.deepClone(DEFAULT_WORKBOOK_DATA)
     workbookData.id = makeid(6)
     const sheetConfig = {
@@ -57,7 +57,7 @@ export default class UniverView extends React.PureComponent {
 
     univerSheetCustom({
       coreConfig: workbookData,
-      baseSheetsConfig: sheetConfig,
+      baseSheetsConfig: sheetConfig
     });
   }
   initDoc() {
