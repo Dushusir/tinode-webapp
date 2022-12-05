@@ -9481,6 +9481,11 @@ class UniverView extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureCompo
     } = UniverPreactTs;
     const workbookData = UniverCore.Tools.deepClone(DEFAULT_WORKBOOK_DATA);
     workbookData.id = (0,_lib_utils__WEBPACK_IMPORTED_MODULE_1__.makeid)(6);
+    let columnCount = 8;
+    if (window.innerWidth < 1366) {
+      columnCount = 5;
+    }
+    workbookData.sheets['sheet-01'].columnCount = columnCount;
     const sheetConfig = {
       container: this.ref.current,
       layout: {

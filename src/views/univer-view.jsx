@@ -25,7 +25,14 @@ export default class UniverView extends React.PureComponent {
   initSheet() {
     const { DEFAULT_WORKBOOK_DATA, univerSheetCustom, UniverCore,DEFAULT_FORMULA_DATA } = UniverPreactTs
     const workbookData = UniverCore.Tools.deepClone(DEFAULT_WORKBOOK_DATA)
-    workbookData.id = makeid(6)
+    workbookData.id = makeid(6);
+    let columnCount = 8
+    if(window.innerWidth < 1366){
+      columnCount = 5;
+    }
+    workbookData.sheets['sheet-01'].columnCount = columnCount;
+    
+    
     const sheetConfig = {
       container: this.ref.current,
       layout: {
