@@ -52,6 +52,7 @@ class SendMessage extends React.PureComponent {
 
     this.handlePasteEvent = this.handlePasteEvent.bind(this);
     this.handleAttachImage = this.handleAttachImage.bind(this);
+    this.handleAttachXlsx = this.handleAttachXlsx.bind(this);
     this.handleAttachFile = this.handleAttachFile.bind(this);
     this.handleAttachAudio = this.handleAttachAudio.bind(this);
     this.handleSend = this.handleSend.bind(this);
@@ -61,14 +62,72 @@ class SendMessage extends React.PureComponent {
     this.handleQuoteClick = this.handleQuoteClick.bind(this);
 
     this.formatReply = this.formatReply.bind(this);
+
   }
 
+  selectDemo(value){
+    this.props.onSendMessage(value);
+    this.setState({message: ''});
+  }
+
+  dragHandle(){
+    const container =  document.querySelector('#messages-container')
+    if(container){
+      container.addEventListener('drop',(e)=>{
+        this.dropHandler(e)
+      })
+
+      container.addEventListener('dragover',(e)=>{
+        this.dragOverHandler(e)
+      })
+    }
+    
+  }
+
+  dropHandler(ev) {
+    console.log('File(s) dropped');
+  
+    // Prevent default behavior (Prevent file from being opened)
+    ev.preventDefault();
+
+    let fileUpload = null;
+    if (ev.dataTransfer.items) {
+      // Use DataTransferItemList interface to access the file(s)
+      [...ev.dataTransfer.items].some((item, i) => {
+        // If dropped items aren't files, reject them
+        if (item.kind === 'file' && item.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+          const file = item.getAsFile();
+          console.log(`… file[${i}].name = ${file.name}`);
+          fileUpload = file
+          return true
+        }
+      });
+    } else {
+      // Use DataTransfer interface to access the file(s)
+      [...ev.dataTransfer.files].forEach((file, i) => {
+        console.log(`… file[${i}].name = ${file.name}`);
+      });
+    }
+
+    if(fileUpload){
+      this.props.onAttachXlsx(fileUpload);
+    }
+  }
+  dragOverHandler(ev) {
+    console.log('File(s) in drop zone');
+  
+    // Prevent default behavior (Prevent file from being opened)
+    ev.preventDefault();
+  }
   componentDidMount() {
     if (this.messageEditArea) {
       this.messageEditArea.addEventListener('paste', this.handlePasteEvent, false);
     }
 
     this.setState({quote: this.formatReply()});
+
+    
+    this.dragHandle()
   }
 
   componentWillUnmount() {
@@ -99,13 +158,32 @@ class SendMessage extends React.PureComponent {
   }
 
   handlePasteEvent(e) {
-    if (this.props.disabled) {
-      return;
+
+    const items = (event.clipboardData || event.originalEvent.clipboardData || {}).items;
+    if (!items || !items.length) {
+      return false;
     }
+    const item  = items[0]
+    if(item.kind === 'string'){
+      item.getAsString((message)=>{
+        if(message.indexOf('<table') > -1 && message.indexOf('<td') > -1){
+          this.props.onSendMessage(message);
+          this.setState({message: ''});
+        }
+      })
+
+      return
+    }
+    
+  
+    // if (this.props.disabled) {
+    //   return;
+    // }
     // FIXME: handle large files too.
     if (filePasted(e,
       file => { this.props.onAttachImage(file); },
       file => { this.props.onAttachFile(file); },
+      file => { this.props.onAttachXlsx(file); },
       this.props.onError)) {
 
       // If a file was pasted, don't paste base64 data into input field.
@@ -116,6 +194,13 @@ class SendMessage extends React.PureComponent {
   handleAttachImage(e) {
     if (e.target.files && e.target.files.length > 0) {
       this.props.onAttachImage(e.target.files[0]);
+    }
+    // Clear the value so the same file can be uploaded again.
+    e.target.value = '';
+  }
+  handleAttachXlsx(e) {
+    if (e.target.files && e.target.files.length > 0) {
+      this.props.onAttachXlsx(e.target.files[0]);
     }
     // Clear the value so the same file can be uploaded again.
     e.target.value = '';
@@ -218,12 +303,23 @@ class SendMessage extends React.PureComponent {
                   <a href="#" onClick={(e) => {e.preventDefault(); this.attachImage.click();}} title="Add image">
                     <i className="material-icons secondary">photo</i>
                   </a>
-                  <a href="#" onClick={(e) => {e.preventDefault(); this.attachFile.click();}} title="Attach file">
+                  {/* <a href="#" onClick={(e) => {e.preventDefault(); this.attachFile.click();}} title="Attach file">
+                    <i className="material-icons secondary">attach_file</i>
+                  </a> */}
+                  <a href="#" onClick={(e) => {e.preventDefault(); this.attachXlsx.click();}} title="Attach excel">
                     <i className="material-icons secondary">attach_file</i>
                   </a>
                   <a href="#" onClick={(e) => {e.preventDefault(); this.handleAttachTable();}} title="Add table">
                     <i className="material-icons secondary">table</i>
                   </a>
+
+                  <select name="pets" id="pet-select" onChange={(e)=>{this.selectDemo(e.target.value)}}>
+                      <option value="">DEMO</option>
+                      <option value="DEMO1">DEMO1</option>
+                      <option value="DEMO2">DEMO2</option>
+                      <option value="DEMO3">DEMO3</option>
+                      <option value="DEMO4">DEMO4</option>
+                  </select>
                 </>
                 :
                 null}
@@ -252,6 +348,8 @@ class SendMessage extends React.PureComponent {
                 onChange={this.handleAttachFile} style={{display: 'none'}} />
               <input type="file" ref={(ref) => {this.attachImage = ref;}} accept="image/*"
                 onChange={this.handleAttachImage} style={{display: 'none'}} />
+              <input type="file" ref={(ref) => {this.attachXlsx = ref;}} accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                onChange={this.handleAttachXlsx} style={{display: 'none'}} />
             </>
             :
             <div id="writing-disabled">{prompt}</div>

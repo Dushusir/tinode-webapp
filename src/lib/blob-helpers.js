@@ -197,7 +197,7 @@ export function blobToBase64(blob) {
 }
 
 // File pasted from the clipboard. It's either an inline image or a file attachment.
-export function filePasted(event, onImageSuccess, onAttachmentSuccess, onError) {
+export function filePasted(event, onImageSuccess, onAttachmentSuccess, onXlsxSuccess, onError) {
   const items = (event.clipboardData || event.originalEvent.clipboardData || {}).items;
   if (!items || !items.length) {
     return false;
@@ -214,7 +214,13 @@ export function filePasted(event, onImageSuccess, onAttachmentSuccess, onError) 
       }
       if (file.type && file.type.split('/')[0] == 'image') {
         onImageSuccess(file);
-      } else {
+      } 
+      // handle xlsx
+      else if(file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'){
+        onXlsxSuccess(file)
+      }
+      
+      else {
         onAttachmentSuccess(file);
       }
       // Indicate that the pasted data contains a file.

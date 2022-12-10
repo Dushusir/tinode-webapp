@@ -12,6 +12,7 @@ import DocPreview from '../widgets/doc-preview.jsx';
 import ErrorPanel from '../widgets/error-panel.jsx';
 import GroupSubs from '../widgets/group-subs.jsx';
 import ImagePreview from '../widgets/image-preview.jsx';
+import XlsxPreview from '../widgets/xlsx-preview.jsx';
 import Invitation from '../widgets/invitation.jsx';
 import LetterTile from '../widgets/letter-tile.jsx';
 import LoadSpinner from '../widgets/load-spinner.jsx';
@@ -26,6 +27,8 @@ import { CALL_STATE_OUTGOING_INITATED, CALL_STATE_IN_PROGRESS } from '../constan
 import { blobToBase64, fileToBase64, imageScaled, makeImageUrl } from '../lib/blob-helpers.js';
 import HashNavigation from '../lib/navigation.js';
 import { bytesToHumanSize, shortDateFormat } from '../lib/strformat.js';
+import * as LuckyExcel from 'luckyexcel';
+import { makeid } from '../lib/utils.js';
 
 // Run timer with this frequency (ms) for checking notification queue.
 const NOTIFICATION_EXEC_INTERVAL = 300;
@@ -99,6 +102,7 @@ class MessagesView extends React.Component {
     this.sendMessage = this.sendMessage.bind(this);
     this.retrySend = this.retrySend.bind(this);
     this.sendImageAttachment = this.sendImageAttachment.bind(this);
+    this.sendXlsxAttachment = this.sendXlsxAttachment.bind(this);
     this.sendFileAttachment = this.sendFileAttachment.bind(this);
     this.sendAudioAttachment = this.sendAudioAttachment.bind(this);
     this.sendKeyPress = this.sendKeyPress.bind(this);
@@ -119,6 +123,7 @@ class MessagesView extends React.Component {
     this.handleEnablePeer = this.handleEnablePeer.bind(this);
     this.handleAttachFile = this.handleAttachFile.bind(this);
     this.handleAttachImage = this.handleAttachImage.bind(this);
+    this.handleAttachXlsx = this.handleAttachXlsx.bind(this);
     this.handleCancelUpload = this.handleCancelUpload.bind(this);
     this.postReadNotification = this.postReadNotification.bind(this);
     this.clearNotificationQueue = this.clearNotificationQueue.bind(this);
@@ -229,6 +234,7 @@ class MessagesView extends React.Component {
         deleted: false,
         docPreview: null,
         imagePreview: null,
+        xlsxPreview: null,
         imagePostview: null,
         rtcPanel: null,
         typingIndicator: false,
@@ -246,6 +252,7 @@ class MessagesView extends React.Component {
         topic: nextProps.topic,
         docPreview: null,
         imagePreview: null,
+        xlsxPreview: null,
         imagePostview: null,
         rtcPanel: null,
         typingIndicator: false,
@@ -675,7 +682,7 @@ class MessagesView extends React.Component {
     if (this.state.imagePreview && this.state.imagePreview.url) {
       URL.revokeObjectURL(this.state.imagePreview.url);
     }
-    this.setState({ imagePostview: null, imagePreview: null, docPreview: null });
+    this.setState({ imagePostview: null, imagePreview: null, docPreview: null,xlsxPreview:null });
   }
 
   handleFormResponse(action, text, data) {
@@ -922,6 +929,42 @@ class MessagesView extends React.Component {
       });
   }
 
+  // sendImageAttachment sends the image bits inband as Drafty message.
+  sendXlsxAttachment(caption) {
+    const file = this.state.xlsxPreview.file;
+    const transformExcelToLucky = LuckyExcel.default.transformExcelToLucky;
+
+    transformExcelToLucky(file, (exportJson) => {
+
+      if(!window.__univer){
+        window.__univer = {}
+      }
+
+      const id = 'univerJson-'+makeid(6)
+      window.__univer[id] = {
+        type:'univerJson',
+        exportJson
+      }
+      this.handleCancelReply();
+      this.props.sendMessage(id)
+
+    });
+  }
+
+  // handleAttachXlsx method is called when [Attach image] button is clicked: launch image preview.
+  handleAttachXlsx(file) {
+
+    this.setState({xlsxPreview: {
+      url: 'xlsx',
+      file: file,
+      name: file.name,
+      width: 300,
+      height: 100,
+      size: 1000,
+      mime: 'xlsx'
+    }});
+  }
+
   // sendAudioAttachment sends audio bits inband as Drafty message (no preview).
   sendAudioAttachment(url, preview, duration) {
     fetch(url)
@@ -1042,7 +1085,20 @@ class MessagesView extends React.Component {
             onClose={this.handleClosePreview}
             onSendMessage={this.sendImageAttachment} />
         );
-      } else if (this.state.imagePostview) {
+      } 
+      else if(this.state.xlsxPreview){
+        component2 = (
+          <XlsxPreview
+            content={this.state.xlsxPreview}
+            tinode={this.props.tinode}
+            reply={this.state.reply}
+            onCancelReply={this.handleCancelReply}
+            onClose={this.handleClosePreview}
+            onSendMessage={this.sendXlsxAttachment} />
+        );
+      }
+      
+      else if (this.state.imagePostview) {
         // Expand received image.
         component2 = (
           <ImagePreview
@@ -1291,6 +1347,7 @@ class MessagesView extends React.Component {
                 onSendMessage={this.sendMessage}
                 onAttachFile={this.props.forwardMessage ? null : this.handleAttachFile}
                 onAttachImage={this.props.forwardMessage ? null : this.handleAttachImage}
+                onAttachXlsx={this.props.forwardMessage ? null : this.handleAttachXlsx}
                 onAttachAudio={this.props.forwardMessage ? null : this.sendAudioAttachment}
                 onError={this.props.onError}
                 reply={this.state.reply}
