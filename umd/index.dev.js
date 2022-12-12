@@ -11930,6 +11930,9 @@ class BaseChatMessage extends (react__WEBPACK_IMPORTED_MODULE_0___default().Pure
     const fullDisplay = this.props.isGroup && this.props.response && (this.props.sequence == 'single' || this.props.sequence == 'last');
     let content = this.props.content;
     const attachments = [];
+    if (content && content.txt) {
+      content = content.txt;
+    }
     const univerList = ['table', 'sheet', 'doc', 'slide', 'DEMO1', 'DEMO2', 'DEMO3', 'DEMO4'];
     if (typeof content === 'string' && content.indexOf('univerJson') > -1) {
       attachments.push(react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_views_univer_view_jsx__WEBPACK_IMPORTED_MODULE_8__["default"], {
