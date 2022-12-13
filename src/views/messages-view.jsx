@@ -936,17 +936,25 @@ class MessagesView extends React.Component {
 
     transformExcelToLucky(file, (exportJson) => {
 
-      if(!window.__univer){
-        window.__univer = {}
-      }
+      // if(!window.__univer){
+      //   window.__univer = {}
+      // }
 
-      const id = 'univerJson-'+makeid(6)
-      window.__univer[id] = {
-        type:'univerJson',
+      // const id = 'univerJson-'+makeid(6)
+      // window.__univer[id] = {
+      //   type:'univerJson',
+      //   exportJson
+      // }
+
+      let data = {
+        type:"univerJson",
         exportJson
       }
+      
+      data = JSON.stringify(data)
       this.handleCancelReply();
-      this.props.sendMessage(id)
+      this.props.sendMessage(data)
+      // this.props.sendMessage(id)
 
     });
   }

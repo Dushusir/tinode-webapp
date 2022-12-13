@@ -6312,16 +6312,14 @@ class MessagesView extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
     const file = this.state.xlsxPreview.file;
     const transformExcelToLucky = (luckyexcel__WEBPACK_IMPORTED_MODULE_22___default().transformExcelToLucky);
     transformExcelToLucky(file, exportJson => {
-      if (!window.__univer) {
-        window.__univer = {};
-      }
-      const id = 'univerJson-' + (0,_lib_utils_js__WEBPACK_IMPORTED_MODULE_23__.makeid)(6);
-      window.__univer[id] = {
-        type: 'univerJson',
+
+      let data = {
+        type: "univerJson",
         exportJson
       };
+      data = JSON.stringify(data);
       this.handleCancelReply();
-      this.props.sendMessage(id);
+      this.props.sendMessage(data);
     });
   }
 
@@ -9520,9 +9518,18 @@ class UniverView extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureCompo
     if (typeof content === 'string' && content.indexOf('univerJson') > -1 && window.__univer && window.__univer[content]) {
       const exportJson = window.__univer[content].exportJson;
       this.handleExportJson(exportJson);
+      this.removeContent();
+      return;
+    } else if (typeof content === 'string' && content.indexOf('univerJson') > -1 && content.indexOf('exportJson') > -1) {
+      const data = JSON.parse(content);
+      const exportJson = data.exportJson;
+      this.handleExportJson(exportJson);
+      this.removeContent();
+      return;
     }
     if (typeof content === 'object' && content.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
       this.handleFile(content);
+      this.removeContent();
       return;
     }
     content = content.trim();
@@ -9826,7 +9833,7 @@ class UniverView extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureCompo
     if (node && node.nodeType === Node.TEXT_NODE) {
       const univerList = ['table', 'sheet', 'doc', 'slide'];
       const content = node.textContent;
-      if (univerList.includes(content) || content.indexOf('<table') > -1 && content.indexOf('<td') > -1) {
+      if (univerList.includes(content) || content.indexOf('<table') > -1 && content.indexOf('<td') > -1 || content.indexOf('univerJson') > -1 && content.indexOf('exportJson') > -1) {
         node.textContent = '';
       }
     }
@@ -11934,7 +11941,7 @@ class BaseChatMessage extends (react__WEBPACK_IMPORTED_MODULE_0___default().Pure
       content = content.txt;
     }
     const univerList = ['table', 'sheet', 'doc', 'slide', 'DEMO1', 'DEMO2', 'DEMO3', 'DEMO4'];
-    if (typeof content === 'string' && content.indexOf('univerJson') > -1) {
+    if (typeof content === 'string' && content.indexOf('univerJson') > -1 && content.indexOf('exportJson') > -1) {
       attachments.push(react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_views_univer_view_jsx__WEBPACK_IMPORTED_MODULE_8__["default"], {
         key: new Date().getTime(),
         content: content

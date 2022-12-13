@@ -10,10 +10,20 @@ export default class UniverView extends React.PureComponent {
     if(typeof content === 'string' && content.indexOf('univerJson') > -1 &&window.__univer &&window.__univer[content]){
       const exportJson = window.__univer[content].exportJson
       this.handleExportJson(exportJson)
+      this.removeContent()
+      return
+    }
+    else if(typeof content === 'string' && content.indexOf('univerJson') > -1&& content.indexOf('exportJson') > -1){
+      const data = JSON.parse(content)
+      const exportJson = data.exportJson;
+      this.handleExportJson(exportJson)
+      this.removeContent()
+      return
     }
     // handle xlsx
     if (typeof content === 'object' && content.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
       this.handleFile(content)
+      this.removeContent()
       return
     }
 
@@ -323,7 +333,7 @@ export default class UniverView extends React.PureComponent {
     if (node && node.nodeType === Node.TEXT_NODE) {
       const univerList = ['table', 'sheet', 'doc', 'slide'];
       const content = node.textContent
-      if (univerList.includes(content) || (content.indexOf('<table') > -1 && content.indexOf('<td') > -1)) {
+      if (univerList.includes(content) || (content.indexOf('<table') > -1 && content.indexOf('<td') > -1) || (content.indexOf('univerJson') > -1 && content.indexOf('exportJson') > -1)) {
         node.textContent = '';
       }
     }
