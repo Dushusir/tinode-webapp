@@ -15,8 +15,10 @@ export default class UniverView extends React.PureComponent {
     }
     else if(typeof content === 'string' && content.indexOf('univerJson') > -1&& content.indexOf('exportJson') > -1){
       const data = JSON.parse(content)
+
+      const isCollaboration = this.isCollaboration(content)
       const exportJson = data.exportJson;
-      this.handleExportJson(exportJson)
+      this.handleExportJson(exportJson,isCollaboration)
       this.removeContent()
       return
     }
@@ -280,7 +282,7 @@ export default class UniverView extends React.PureComponent {
 
     });
   }
-  handleExportJson(exportJson) {
+  handleExportJson(exportJson, isCollaboration = false) {
       if (exportJson.sheets == null || exportJson.sheets.length == 0) {
         alert('Failed to read the content of the excel file, currently does not support xls files!');
         return;
@@ -321,10 +323,18 @@ export default class UniverView extends React.PureComponent {
       }
       const coreConfig = Object.assign({}, DEFAULT_WORKBOOK_DATA, config)
 
-      univerSheetCustom({
+      const univerSheetCustomConfig = {
         coreConfig,
         baseSheetsConfig: sheetConfig,
-      });
+      }
+
+      // 加上协同
+      if(isCollaboration){
+        univerSheetCustomConfig.collaborationConfig = {
+          url: 'ws://luckysheet.lashuju.com/ws',
+        }
+      }
+      univerSheetCustom(univerSheetCustomConfig);
 
   }
 
@@ -337,6 +347,10 @@ export default class UniverView extends React.PureComponent {
         node.textContent = '';
       }
     }
+  }
+
+  isCollaboration(content){
+    return content.indexOf('Fill in the specific division of labor after the project is disassembled') > -1;
   }
   componentWillUnmount() {
     this.setState = () => false;

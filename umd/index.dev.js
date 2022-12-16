@@ -9522,8 +9522,9 @@ class UniverView extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureCompo
       return;
     } else if (typeof content === 'string' && content.indexOf('univerJson') > -1 && content.indexOf('exportJson') > -1) {
       const data = JSON.parse(content);
+      const isCollaboration = this.isCollaboration(content);
       const exportJson = data.exportJson;
-      this.handleExportJson(exportJson);
+      this.handleExportJson(exportJson, isCollaboration);
       this.removeContent();
       return;
     }
@@ -9781,6 +9782,7 @@ class UniverView extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureCompo
     });
   }
   handleExportJson(exportJson) {
+    let isCollaboration = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
     if (exportJson.sheets == null || exportJson.sheets.length == 0) {
       alert('Failed to read the content of the excel file, currently does not support xls files!');
       return;
@@ -9823,10 +9825,17 @@ class UniverView extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureCompo
       sheetOrder: []
     };
     const coreConfig = Object.assign({}, DEFAULT_WORKBOOK_DATA, config);
-    univerSheetCustom({
+    const univerSheetCustomConfig = {
       coreConfig,
       baseSheetsConfig: sheetConfig
-    });
+    };
+
+    if (isCollaboration) {
+      univerSheetCustomConfig.collaborationConfig = {
+        url: 'ws://luckysheet.lashuju.com/ws'
+      };
+    }
+    univerSheetCustom(univerSheetCustomConfig);
   }
   removeContent() {
     const node = this.ref.current && this.ref.current.previousSibling && this.ref.current.previousSibling;
@@ -9837,6 +9846,9 @@ class UniverView extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureCompo
         node.textContent = '';
       }
     }
+  }
+  isCollaboration(content) {
+    return content.indexOf('Fill in the specific division of labor after the project is disassembled') > -1;
   }
   componentWillUnmount() {
     this.setState = () => false;
