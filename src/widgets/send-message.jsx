@@ -319,6 +319,8 @@ class SendMessage extends React.PureComponent {
                       <option value="DEMO2">DEMO2</option>
                       <option value="DEMO3">DEMO3</option>
                       <option value="DEMO4">DEMO4</option>
+                      <option value="Doc">Doc</option>
+                      <option value="Slide">Slide</option>
                   </select>
                 </>
                 :

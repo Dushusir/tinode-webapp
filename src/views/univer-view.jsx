@@ -51,6 +51,12 @@ export default class UniverView extends React.PureComponent {
         case 'DEMO4':
           this.initSheetByDemo(content)
           break;
+        case 'Doc':
+          this.initDoc()
+          break;
+        case 'Slide':
+          this.initSlide()
+          break;
 
         default:
           break;
@@ -244,7 +250,13 @@ export default class UniverView extends React.PureComponent {
 
   }
   initDoc() {
-    const { univerDocCustom } = UniverPreactTs
+    const { univerDocCustom,UniverCore,CommonPluginData } = UniverPreactTs
+
+    const { DEFAULT_DOCUMENT_DATA } = CommonPluginData
+    
+    const coreConfig = UniverCore.Tools.deepClone(DEFAULT_DOCUMENT_DATA)
+    coreConfig.id = makeid(6)
+    
     const docConfig = {
       container: this.ref.current,
       layout: {
@@ -255,14 +267,21 @@ export default class UniverView extends React.PureComponent {
       },
     }
     univerDocCustom({
+      coreConfig,
       baseDocsConfig: docConfig,
     });
   }
   initSlide() {
-    const { univerSlideCustom } = UniverPreactTs
+    const { univerSlideCustom,UniverCore,CommonPluginData } = UniverPreactTs
+    const { DEFAULT_SLIDE_DATA } = CommonPluginData
+    
+    const coreConfig = UniverCore.Tools.deepClone(DEFAULT_SLIDE_DATA)
+    coreConfig.id = makeid(6)
+
     const slideConfig = {
       container: this.ref.current,
       layout: {
+        innerLeft: false,
         innerRight: false,
         outerLeft: false,
         infoBar: false,
@@ -270,6 +289,7 @@ export default class UniverView extends React.PureComponent {
       },
     }
     univerSlideCustom({
+      coreConfig,
       baseSlidesConfig: slideConfig,
     });
   }
@@ -341,7 +361,7 @@ export default class UniverView extends React.PureComponent {
   removeContent() {
     const node = this.ref.current && this.ref.current.previousSibling && this.ref.current.previousSibling
     if (node && node.nodeType === Node.TEXT_NODE) {
-      const univerList = ['table', 'sheet', 'doc', 'slide'];
+      const univerList = ['table','sheet','doc','slide','DEMO1','DEMO2','DEMO3','DEMO4','Doc','Slide','Sheet']
       const content = node.textContent
       if (univerList.includes(content) || (content.indexOf('<table') > -1 && content.indexOf('<td') > -1) || (content.indexOf('univerJson') > -1 && content.indexOf('exportJson') > -1)) {
         node.textContent = '';

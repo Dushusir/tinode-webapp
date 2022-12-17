@@ -9554,6 +9554,12 @@ class UniverView extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureCompo
         case 'DEMO4':
           this.initSheetByDemo(content);
           break;
+        case 'Doc':
+          this.initDoc();
+          break;
+        case 'Slide':
+          this.initSlide();
+          break;
         default:
           break;
       }
@@ -9743,8 +9749,15 @@ class UniverView extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureCompo
   }
   initDoc() {
     const {
-      univerDocCustom
+      univerDocCustom,
+      UniverCore,
+      CommonPluginData
     } = UniverPreactTs;
+    const {
+      DEFAULT_DOCUMENT_DATA
+    } = CommonPluginData;
+    const coreConfig = UniverCore.Tools.deepClone(DEFAULT_DOCUMENT_DATA);
+    coreConfig.id = (0,_lib_utils__WEBPACK_IMPORTED_MODULE_1__.makeid)(6);
     const docConfig = {
       container: this.ref.current,
       layout: {
@@ -9755,16 +9768,25 @@ class UniverView extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureCompo
       }
     };
     univerDocCustom({
+      coreConfig,
       baseDocsConfig: docConfig
     });
   }
   initSlide() {
     const {
-      univerSlideCustom
+      univerSlideCustom,
+      UniverCore,
+      CommonPluginData
     } = UniverPreactTs;
+    const {
+      DEFAULT_SLIDE_DATA
+    } = CommonPluginData;
+    const coreConfig = UniverCore.Tools.deepClone(DEFAULT_SLIDE_DATA);
+    coreConfig.id = (0,_lib_utils__WEBPACK_IMPORTED_MODULE_1__.makeid)(6);
     const slideConfig = {
       container: this.ref.current,
       layout: {
+        innerLeft: false,
         innerRight: false,
         outerLeft: false,
         infoBar: false,
@@ -9772,6 +9794,7 @@ class UniverView extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureCompo
       }
     };
     univerSlideCustom({
+      coreConfig,
       baseSlidesConfig: slideConfig
     });
   }
@@ -9840,7 +9863,7 @@ class UniverView extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureCompo
   removeContent() {
     const node = this.ref.current && this.ref.current.previousSibling && this.ref.current.previousSibling;
     if (node && node.nodeType === Node.TEXT_NODE) {
-      const univerList = ['table', 'sheet', 'doc', 'slide'];
+      const univerList = ['table', 'sheet', 'doc', 'slide', 'DEMO1', 'DEMO2', 'DEMO3', 'DEMO4', 'Doc', 'Slide', 'Sheet'];
       const content = node.textContent;
       if (univerList.includes(content) || content.indexOf('<table') > -1 && content.indexOf('<td') > -1 || content.indexOf('univerJson') > -1 && content.indexOf('exportJson') > -1) {
         node.textContent = '';
@@ -11952,7 +11975,7 @@ class BaseChatMessage extends (react__WEBPACK_IMPORTED_MODULE_0___default().Pure
     if (content && content.txt) {
       content = content.txt;
     }
-    const univerList = ['table', 'sheet', 'doc', 'slide', 'DEMO1', 'DEMO2', 'DEMO3', 'DEMO4'];
+    const univerList = ['table', 'sheet', 'doc', 'slide', 'DEMO1', 'DEMO2', 'DEMO3', 'DEMO4', 'Doc', 'Slide', 'Sheet'];
     if (typeof content === 'string' && content.indexOf('univerJson') > -1 && content.indexOf('exportJson') > -1) {
       attachments.push(react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_views_univer_view_jsx__WEBPACK_IMPORTED_MODULE_8__["default"], {
         key: new Date().getTime(),
@@ -16014,7 +16037,11 @@ class SendMessage extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureComp
       value: "DEMO3"
     }, "DEMO3"), react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", {
       value: "DEMO4"
-    }, "DEMO4"))) : null, this.props.noInput ? quote || react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
+    }, "DEMO4"), react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", {
+      value: "Doc"
+    }, "Doc"), react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", {
+      value: "Slide"
+    }, "Slide"))) : null, this.props.noInput ? quote || react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
       className: "hr thin"
     }) : this.state.audioRec ? react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_audio_recorder_jsx__WEBPACK_IMPORTED_MODULE_3__["default"], {
       onDeleted: _ => this.setState({
