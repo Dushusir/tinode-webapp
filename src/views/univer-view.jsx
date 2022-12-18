@@ -75,6 +75,7 @@ export default class UniverView extends React.PureComponent {
     if (window.innerWidth < 1366) {
       columnCount = 5;
     }
+    workbookData.sheetOrder = []
     workbookData.sheets['sheet-01'].columnCount = columnCount;
 
 
@@ -178,6 +179,7 @@ export default class UniverView extends React.PureComponent {
       id: makeid(6),
       styles: null,
       namedRanges: null,
+      sheetOrder:[],
       sheets: {
         'sheet-01': {
           type: 0,
@@ -243,6 +245,7 @@ export default class UniverView extends React.PureComponent {
     const coreConfig = UniverCore.Tools.deepClone(demoInfo[demo])
 
     coreConfig.id = makeid(6);
+    coreConfig.sheetOrder = []
     univerSheetCustom({
       coreConfig,
       baseSheetsConfig: sheetConfig,
@@ -252,9 +255,9 @@ export default class UniverView extends React.PureComponent {
   initDoc() {
     const { univerDocCustom,UniverCore,CommonPluginData } = UniverPreactTs
 
-    const { DEFAULT_DOCUMENT_DATA } = CommonPluginData
+    const { DEFAULT_DOCUMENT_DATA_EN } = CommonPluginData
     
-    const coreConfig = UniverCore.Tools.deepClone(DEFAULT_DOCUMENT_DATA)
+    const coreConfig = UniverCore.Tools.deepClone(DEFAULT_DOCUMENT_DATA_EN)
     coreConfig.id = makeid(6)
     
     const docConfig = {
@@ -350,9 +353,24 @@ export default class UniverView extends React.PureComponent {
 
       // 加上协同
       if(isCollaboration){
+        
         univerSheetCustomConfig.collaborationConfig = {
+          // url: 'ws://localhost:8448/ws',
           url: 'ws://luckysheet.lashuju.com/ws',
         }
+        
+        if(window.collaborationInstance){
+          const collborationPlugin = window.collaborationInstance.context.getPluginManager().getPluginByName('collaboration')
+
+          console.log('collborationPlugin.getCollaborationController()======',collborationPlugin.getCollaborationController());
+          collborationPlugin.getCollaborationController().close();
+
+          window.collaborationInstance = univerSheetCustom(univerSheetCustomConfig);
+          return
+        }
+
+        window.collaborationInstance = univerSheetCustom(univerSheetCustomConfig);
+        return
       }
       univerSheetCustom(univerSheetCustomConfig);
 

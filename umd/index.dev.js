@@ -9578,6 +9578,7 @@ class UniverView extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureCompo
     if (window.innerWidth < 1366) {
       columnCount = 5;
     }
+    workbookData.sheetOrder = [];
     workbookData.sheets['sheet-01'].columnCount = columnCount;
     const sheetConfig = {
       container: this.ref.current,
@@ -9678,6 +9679,7 @@ class UniverView extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureCompo
       id: (0,_lib_utils__WEBPACK_IMPORTED_MODULE_1__.makeid)(6),
       styles: null,
       namedRanges: null,
+      sheetOrder: [],
       sheets: {
         'sheet-01': {
           type: 0,
@@ -9742,6 +9744,7 @@ class UniverView extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureCompo
     };
     const coreConfig = UniverCore.Tools.deepClone(demoInfo[demo]);
     coreConfig.id = (0,_lib_utils__WEBPACK_IMPORTED_MODULE_1__.makeid)(6);
+    coreConfig.sheetOrder = [];
     univerSheetCustom({
       coreConfig,
       baseSheetsConfig: sheetConfig
@@ -9754,9 +9757,9 @@ class UniverView extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureCompo
       CommonPluginData
     } = UniverPreactTs;
     const {
-      DEFAULT_DOCUMENT_DATA
+      DEFAULT_DOCUMENT_DATA_EN
     } = CommonPluginData;
-    const coreConfig = UniverCore.Tools.deepClone(DEFAULT_DOCUMENT_DATA);
+    const coreConfig = UniverCore.Tools.deepClone(DEFAULT_DOCUMENT_DATA_EN);
     coreConfig.id = (0,_lib_utils__WEBPACK_IMPORTED_MODULE_1__.makeid)(6);
     const docConfig = {
       container: this.ref.current,
@@ -9857,6 +9860,15 @@ class UniverView extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureCompo
       univerSheetCustomConfig.collaborationConfig = {
         url: 'ws://luckysheet.lashuju.com/ws'
       };
+      if (window.collaborationInstance) {
+        const collborationPlugin = window.collaborationInstance.context.getPluginManager().getPluginByName('collaboration');
+        console.log('collborationPlugin.getCollaborationController()======', collborationPlugin.getCollaborationController());
+        collborationPlugin.getCollaborationController().close();
+        window.collaborationInstance = univerSheetCustom(univerSheetCustomConfig);
+        return;
+      }
+      window.collaborationInstance = univerSheetCustom(univerSheetCustomConfig);
+      return;
     }
     univerSheetCustom(univerSheetCustomConfig);
   }
