@@ -9534,6 +9534,13 @@ class UniverView extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureCompo
       return;
     }
     content = content.trim();
+    let isPasteSheet = content.indexOf('universheet_copy_action_table') !== -1;
+    let config = {
+      toolbar: false,
+      isPasteSheet
+    };
+    this.initUniverNew(content, config);
+    return;
     if (content.indexOf('<table') > -1 && content.indexOf('<td') > -1) {
       this.initSheet(content);
     } else {
@@ -9566,6 +9573,279 @@ class UniverView extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureCompo
     }
     this.removeContent();
   }
+  initUniverNew(content, setting) {
+    const {
+      isPasteSheet
+    } = setting;
+    if (isPasteSheet) {
+      this.initSheetNew(content, setting);
+    } else {
+      switch (content) {
+        case 'table':
+        case 'sheet':
+          this.initSheetNew(content, setting);
+          break;
+        case 'doc':
+          this.initDocNew(setting);
+          break;
+        case 'slide':
+          this.initSlideNew(setting);
+          break;
+        case 'DEMO1':
+        case 'DEMO2':
+        case 'DEMO3':
+        case 'DEMO4':
+          this.initSheetByDemoNew(content, setting);
+          break;
+        case 'Doc':
+          this.initDocNew(setting);
+          break;
+        case 'Slide':
+          this.initSlideNew(setting);
+          break;
+        default:
+          break;
+      }
+    }
+    this.removeContent();
+  }
+  initSheetNew(tableHTML, setting) {
+    const {
+      toolbar,
+      isPasteSheet
+    } = setting;
+    let cellData = {};
+    let mergeData = {};
+    let rowData = [];
+    let columnData = [];
+    if (isPasteSheet) {
+      const {
+        BaseComponent
+      } = UniverPreactTs;
+      const {
+        handelTableToJson,
+        handleTableColgroup,
+        handleTableRowGroup,
+        handleTableMergeData
+      } = BaseComponent;
+      const data = handelTableToJson(tableHTML);
+      const colInfo = handleTableColgroup(tableHTML);
+      columnData = colInfo.map(w => {
+        return {
+          w
+        };
+      });
+      const rowInfo = handleTableRowGroup(tableHTML);
+      rowData = rowInfo.map(h => {
+        return {
+          h
+        };
+      });
+      const tableData = handleTableMergeData(data);
+      mergeData = tableData.mergeData;
+      data.forEach((row, i) => {
+        cellData[i] = {};
+        row.forEach((column, j) => {
+          cellData[i][j] = column;
+        });
+      });
+    } else {
+      cellData = {
+        '0': {
+          '0': {
+            m: '',
+            v: ''
+          }
+        }
+      };
+    }
+    const {
+      univerSheetCustom,
+      CommonPluginData
+    } = UniverPreactTs;
+    const {
+      DEFAULT_WORKBOOK_DATA
+    } = CommonPluginData;
+    const baseSheetsConfig = {
+      selections: {
+        'sheet-01': [{
+          selection: {
+            startRow: 0,
+            endRow: 1,
+            startColumn: 0,
+            endColumn: 1
+          },
+          cell: {
+            row: 0,
+            column: 0
+          }
+        }]
+      }
+    };
+    let uiSheetsConfig = {
+      container: this.ref.current,
+      layout: {
+        sheetContainerConfig: {
+          infoBar: false,
+          formulaBar: false,
+          toolbar,
+          sheetBar: false,
+          countBar: false,
+          rightMenu: false
+        }
+      }
+    };
+    let columnCount = 13;
+    if (window.innerWidth < 1366) {
+      columnCount = 7;
+    }
+    const config = {
+      id: (0,_lib_utils__WEBPACK_IMPORTED_MODULE_1__.makeid)(6),
+      styles: null,
+      namedRanges: null,
+      sheetOrder: [],
+      sheets: {
+        'sheet-01': {
+          type: 0,
+          id: 'sheet-01',
+          name: 'sheet1',
+          status: 1,
+          cellData
+        }
+      }
+    };
+    if (isPasteSheet) {
+      config.sheets['sheet-01'].mergeData = mergeData;
+      config.sheets['sheet-01'].rowData = rowData;
+      config.sheets['sheet-01'].columnData = columnData;
+    }
+    const coreConfig = Object.assign({}, DEFAULT_WORKBOOK_DATA, config);
+    univerSheetCustom({
+      coreConfig,
+      baseSheetsConfig,
+      uiSheetsConfig
+    });
+  }
+  initSheetByDemoNew(demo, setting) {
+    const {
+      toolbar
+    } = setting;
+    const {
+      univerSheetCustom,
+      CommonPluginData,
+      UniverCore
+    } = UniverPreactTs;
+    const {
+      DEFAULT_WORKBOOK_DATA_DEMO1,
+      DEFAULT_WORKBOOK_DATA_DEMO2,
+      DEFAULT_WORKBOOK_DATA_DEMO3,
+      DEFAULT_WORKBOOK_DATA_DEMO4
+    } = CommonPluginData;
+    const demoInfo = {
+      'DEMO1': DEFAULT_WORKBOOK_DATA_DEMO1,
+      'DEMO2': DEFAULT_WORKBOOK_DATA_DEMO2,
+      'DEMO3': DEFAULT_WORKBOOK_DATA_DEMO3,
+      'DEMO4': DEFAULT_WORKBOOK_DATA_DEMO4
+    };
+    const baseSheetsConfig = {
+      selections: {
+        'sheet-01': [{
+          selection: {
+            startRow: 0,
+            endRow: 0,
+            startColumn: 3,
+            endColumn: 3
+          },
+          cell: {
+            row: 0,
+            column: 3
+          }
+        }]
+      }
+    };
+    let uiSheetsConfig = {
+      container: this.ref.current,
+      layout: {
+        sheetContainerConfig: {
+          infoBar: false,
+          formulaBar: false,
+          toolbar,
+          sheetBar: false,
+          countBar: false,
+          rightMenu: false
+        }
+      }
+    };
+    const coreConfig = UniverCore.Tools.deepClone(demoInfo[demo]);
+    coreConfig.id = (0,_lib_utils__WEBPACK_IMPORTED_MODULE_1__.makeid)(6);
+    coreConfig.sheetOrder = [];
+    univerSheetCustom({
+      coreConfig,
+      baseSheetsConfig,
+      uiSheetsConfig
+    });
+  }
+  initDocNew(setting) {
+    const {
+      toolbar
+    } = setting;
+    const {
+      univerDocCustom,
+      UniverCore,
+      CommonPluginData
+    } = UniverPreactTs;
+    const {
+      DEFAULT_DOCUMENT_DATA_EN
+    } = CommonPluginData;
+    const coreConfig = UniverCore.Tools.deepClone(DEFAULT_DOCUMENT_DATA_EN);
+    coreConfig.id = (0,_lib_utils__WEBPACK_IMPORTED_MODULE_1__.makeid)(6);
+    const uiDocsConfig = {
+      container: this.ref.current,
+      layout: {
+        docContainerConfig: {
+          innerRight: false,
+          outerLeft: false,
+          infoBar: false,
+          toolbar
+        }
+      }
+    };
+    univerDocCustom({
+      coreConfig,
+      uiDocsConfig
+    });
+  }
+  initSlideNew(setting) {
+    const {
+      toolbar
+    } = setting;
+    const {
+      univerSlideCustom,
+      UniverCore,
+      CommonPluginData
+    } = UniverPreactTs;
+    const {
+      DEFAULT_SLIDE_DATA
+    } = CommonPluginData;
+    const coreConfig = UniverCore.Tools.deepClone(DEFAULT_SLIDE_DATA);
+    coreConfig.id = (0,_lib_utils__WEBPACK_IMPORTED_MODULE_1__.makeid)(6);
+    const uiSlidesConfig = {
+      container: this.ref.current,
+      layout: {
+        slideContainerConfig: {
+          innerLeft: false,
+          innerRight: false,
+          outerLeft: false,
+          infoBar: false,
+          toolbar
+        }
+      }
+    };
+    univerSlideCustom({
+      coreConfig,
+      uiSlidesConfig
+    });
+  }
   initSheetDefaultData() {
     const {
       DEFAULT_WORKBOOK_DATA,
@@ -9583,13 +9863,15 @@ class UniverView extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureCompo
     const sheetConfig = {
       container: this.ref.current,
       layout: {
-        innerRight: false,
-        outerLeft: false,
-        infoBar: false,
-        toolBar: false,
-        formulaBar: false,
-        sheetBar: false,
-        countBar: false
+        sheetContainerConfig: {
+          innerRight: false,
+          outerLeft: false,
+          infoBar: false,
+          toolBar: false,
+          formulaBar: false,
+          sheetBar: false,
+          countBar: false
+        }
       },
       selections: {
         'sheet-01': [{
@@ -9830,7 +10112,7 @@ class UniverView extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureCompo
       title: exportJson.info.name
     };
     const univerWorkbookConfig = migrate(luckysheetConfig);
-    const sheetConfig = {
+    const uiSheetsConfig = {
       container: this.ref.current,
       layout: {
         sheetContainerConfig: {
@@ -9853,7 +10135,7 @@ class UniverView extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureCompo
     const coreConfig = Object.assign({}, DEFAULT_WORKBOOK_DATA, config);
     const univerSheetCustomConfig = {
       coreConfig,
-      baseSheetsConfig: sheetConfig
+      uiSheetsConfig
     };
 
     if (isCollaboration) {
@@ -9861,8 +10143,7 @@ class UniverView extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureCompo
         url: 'ws://luckysheet.lashuju.com/ws'
       };
       if (window.collaborationInstance) {
-        const collborationPlugin = window.collaborationInstance.context.getPluginManager().getPluginByName('collaboration');
-        console.log('collborationPlugin.getCollaborationController()======', collborationPlugin.getCollaborationController());
+        const collborationPlugin = window.collaborationInstance.context.getUniver().getGlobalContext().getPluginManager().getPluginByName('collaboration');
         collborationPlugin.getCollaborationController().close();
         window.collaborationInstance = univerSheetCustom(univerSheetCustomConfig);
         return;
