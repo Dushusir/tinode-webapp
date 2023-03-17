@@ -9534,7 +9534,8 @@ class UniverView extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureCompo
       return;
     }
     content = content.trim();
-    let isPasteSheet = content.indexOf('universheet_copy_action_table') !== -1;
+
+    let isPasteSheet = content.indexOf('<table') > -1 && content.indexOf('<td') > -1;
     let config = {
       toolbar: false,
       isPasteSheet

@@ -31,7 +31,8 @@ export default class UniverView extends React.PureComponent {
 
     content = content.trim()
 
-    let isPasteSheet = content.indexOf('universheet_copy_action_table') !== -1;
+    // let isPasteSheet = content.indexOf('universheet_copy_action_table') !== -1;
+    let isPasteSheet = (content.indexOf('<table') > -1 && content.indexOf('<td') > -1);
     let config = {
         toolbar:false,
         isPasteSheet
