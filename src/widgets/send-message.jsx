@@ -119,9 +119,18 @@ class SendMessage extends React.PureComponent {
     // Prevent default behavior (Prevent file from being opened)
     ev.preventDefault();
   }
+
+  setPasteListener(element){
+
+    if (element.getAttribute('listener') !== 'true') {
+      element.addEventListener('paste',this.handlePasteEvent, false);
+      element.setAttribute('listener', 'true');
+    }
+
+  }
   componentDidMount() {
     if (this.messageEditArea) {
-      this.messageEditArea.addEventListener('paste', this.handlePasteEvent, false);
+      this.setPasteListener(this.messageEditArea)
     }
 
     this.setState({quote: this.formatReply()});
@@ -139,6 +148,7 @@ class SendMessage extends React.PureComponent {
   componentDidUpdate(prevProps) {
     if (this.messageEditArea) {
       this.messageEditArea.focus();
+      this.setPasteListener(this.messageEditArea)
     }
 
     if (prevProps.topicName != this.props.topicName) {
@@ -157,6 +167,16 @@ class SendMessage extends React.PureComponent {
       }) : null;
   }
 
+  getItem(item){
+    return new Promise((resolve,reject)=>{
+      if(item && item.kind === 'string'){
+        item.getAsString((message)=>{
+          resolve(message)
+        })
+      }
+    })
+  }
+
   handlePasteEvent(e) {
 
     const items = (event.clipboardData || event.originalEvent.clipboardData || {}).items;
@@ -164,18 +184,44 @@ class SendMessage extends React.PureComponent {
       return false;
     }
     const item  = items[0]
-    if(item.kind === 'string'){
+    // const itemHTML = items[1]
+    const itemHTML = e.clipboardData.getData('text/html');
+
+    if(itemHTML && itemHTML.indexOf('xmlns:x="urn:schemas-microsoft-com:office:excel"') > -1){
+      this.props.onSendMessage(itemHTML);
+      this.setState({message: ''});
+      return
+
+    }else if(message.indexOf('<table') > -1 && message.indexOf('<td') > -1){
       item.getAsString((message)=>{
-        if(message.indexOf('<table') > -1 && message.indexOf('<td') > -1){
           this.props.onSendMessage(message);
           this.setState({message: ''});
-        }
+          return
       })
-
-      return
     }
-    
-  
+
+    //   if(itemHTML == null){
+    //   item.getAsString((message)=>{
+    //     if(message.indexOf('<table') > -1 && message.indexOf('<td') > -1){
+    //       this.props.onSendMessage(message);
+    //       this.setState({message: ''});
+    //     }
+    //   })
+    // }else{
+    //   Promise.all([this.getItem(item), this.getItem(itemHTML)]).then((values) => {
+    //     const text = values[0]
+    //     const html = values[1]
+    //     console.log('html===',html)
+    //       if(html && html.indexOf('xmlns:x="urn:schemas-microsoft-com:office:excel"') > -1){
+    //         this.props.onSendMessage(html);
+    //         this.setState({html: ''});
+    //       }else if(text && text.indexOf('<table') > -1 && message.indexOf('<td') > -1){
+    //         this.props.onSendMessage(text);
+    //         this.setState({text: ''});
+    //       }
+    //   });
+    // }
+
     // if (this.props.disabled) {
     //   return;
     // }

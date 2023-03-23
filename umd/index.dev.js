@@ -9627,16 +9627,32 @@ class UniverView extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureCompo
         handelTableToJson,
         handleTableColgroup,
         handleTableRowGroup,
-        handleTableMergeData
+        handleTableMergeData,
+        handelExcelToJson,
+        handlePlainToJson
       } = BaseComponent;
-      const data = handelTableToJson(tableHTML);
-      const colInfo = handleTableColgroup(tableHTML);
+
+      let data;
+      let colInfo;
+      let rowInfo;
+      if (tableHTML) {
+        if (tableHTML.indexOf('xmlns:x="urn:schemas-microsoft-com:office:excel"') > -1) {
+          data = handelExcelToJson(tableHTML);
+          colInfo = handleTableColgroup(tableHTML);
+          rowInfo = handleTableRowGroup(tableHTML);
+        } else if (tableHTML.indexOf('<table') > -1 && tableHTML.indexOf('<td') > -1) {
+          data = handelTableToJson(tableHTML);
+          colInfo = handleTableColgroup(tableHTML);
+          rowInfo = handleTableRowGroup(tableHTML);
+        } else {
+          data = handlePlainToJson(tableHTML);
+        }
+      }
       columnData = colInfo.map(w => {
         return {
           w
         };
       });
-      const rowInfo = handleTableRowGroup(tableHTML);
       rowData = rowInfo.map(h => {
         return {
           h
@@ -16122,9 +16138,15 @@ class SendMessage extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureComp
 
     ev.preventDefault();
   }
+  setPasteListener(element) {
+    if (element.getAttribute('listener') !== 'true') {
+      element.addEventListener('paste', this.handlePasteEvent, false);
+      element.setAttribute('listener', 'true');
+    }
+  }
   componentDidMount() {
     if (this.messageEditArea) {
-      this.messageEditArea.addEventListener('paste', this.handlePasteEvent, false);
+      this.setPasteListener(this.messageEditArea);
     }
     this.setState({
       quote: this.formatReply()
@@ -16139,6 +16161,7 @@ class SendMessage extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureComp
   componentDidUpdate(prevProps) {
     if (this.messageEditArea) {
       this.messageEditArea.focus();
+      this.setPasteListener(this.messageEditArea);
     }
     if (prevProps.topicName != this.props.topicName) {
       this.setState({
@@ -16159,22 +16182,36 @@ class SendMessage extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureComp
       authorizeURL: this.props.tinode.authorizeURL.bind(this.props.tinode)
     }) : null;
   }
+  getItem(item) {
+    return new Promise((resolve, reject) => {
+      if (item && item.kind === 'string') {
+        item.getAsString(message => {
+          resolve(message);
+        });
+      }
+    });
+  }
   handlePasteEvent(e) {
     const items = (event.clipboardData || event.originalEvent.clipboardData || {}).items;
     if (!items || !items.length) {
       return false;
     }
     const item = items[0];
-    if (item.kind === 'string') {
-      item.getAsString(message => {
-        if (message.indexOf('<table') > -1 && message.indexOf('<td') > -1) {
-          this.props.onSendMessage(message);
-          this.setState({
-            message: ''
-          });
-        }
+    const itemHTML = e.clipboardData.getData('text/html');
+    if (itemHTML && itemHTML.indexOf('xmlns:x="urn:schemas-microsoft-com:office:excel"') > -1) {
+      this.props.onSendMessage(itemHTML);
+      this.setState({
+        message: ''
       });
       return;
+    } else if (message.indexOf('<table') > -1 && message.indexOf('<td') > -1) {
+      item.getAsString(message => {
+        this.props.onSendMessage(message);
+        this.setState({
+          message: ''
+        });
+        return;
+      });
     }
 
     if ((0,_lib_blob_helpers_js__WEBPACK_IMPORTED_MODULE_5__.filePasted)(e, file => {
