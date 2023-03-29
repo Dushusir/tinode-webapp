@@ -9596,6 +9596,10 @@ class UniverView extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureCompo
         case 'DEMO2':
         case 'DEMO3':
         case 'DEMO4':
+        case 'DEMO5':
+        case 'DEMO6':
+        case 'DEMO7':
+        case 'DEMO8':
           this.initSheetByDemoNew(content, setting);
           break;
         case 'Doc':
@@ -9756,13 +9760,21 @@ class UniverView extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureCompo
       DEFAULT_WORKBOOK_DATA_DEMO1,
       DEFAULT_WORKBOOK_DATA_DEMO2,
       DEFAULT_WORKBOOK_DATA_DEMO3,
-      DEFAULT_WORKBOOK_DATA_DEMO4
+      DEFAULT_WORKBOOK_DATA_DEMO4,
+      DEFAULT_WORKBOOK_DATA_DEMO5,
+      DEFAULT_WORKBOOK_DATA_DEMO6,
+      DEFAULT_WORKBOOK_DATA_DEMO7,
+      DEFAULT_WORKBOOK_DATA_DEMO8
     } = CommonPluginData;
     const demoInfo = {
       'DEMO1': DEFAULT_WORKBOOK_DATA_DEMO1,
       'DEMO2': DEFAULT_WORKBOOK_DATA_DEMO2,
       'DEMO3': DEFAULT_WORKBOOK_DATA_DEMO3,
-      'DEMO4': DEFAULT_WORKBOOK_DATA_DEMO4
+      'DEMO4': DEFAULT_WORKBOOK_DATA_DEMO4,
+      'DEMO5': DEFAULT_WORKBOOK_DATA_DEMO5,
+      'DEMO6': DEFAULT_WORKBOOK_DATA_DEMO6,
+      'DEMO7': DEFAULT_WORKBOOK_DATA_DEMO7,
+      'DEMO8': DEFAULT_WORKBOOK_DATA_DEMO8
     };
     const baseSheetsConfig = {
       selections: {
@@ -12285,7 +12297,7 @@ class BaseChatMessage extends (react__WEBPACK_IMPORTED_MODULE_0___default().Pure
     if (content && content.txt) {
       content = content.txt;
     }
-    const univerList = ['table', 'sheet', 'doc', 'slide', 'DEMO1', 'DEMO2', 'DEMO3', 'DEMO4', 'Doc', 'Slide', 'Sheet'];
+    const univerList = ['table', 'sheet', 'doc', 'slide', 'DEMO1', 'DEMO2', 'DEMO3', 'DEMO4', 'DEMO5', 'DEMO6', 'DEMO7', 'DEMO8', 'Doc', 'Slide', 'Sheet'];
     if (typeof content === 'string' && content.indexOf('univerJson') > -1 && content.indexOf('exportJson') > -1) {
       attachments.push(react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_views_univer_view_jsx__WEBPACK_IMPORTED_MODULE_8__["default"], {
         key: new Date().getTime(),
@@ -16369,6 +16381,14 @@ class SendMessage extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureComp
     }, "DEMO3"), react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", {
       value: "DEMO4"
     }, "DEMO4"), react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", {
+      value: "DEMO5"
+    }, "DEMO5"), react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", {
+      value: "DEMO6"
+    }, "DEMO6"), react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", {
+      value: "DEMO7"
+    }, "DEMO7"), react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", {
+      value: "DEMO8"
+    }, "DEMO8"), react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", {
       value: "Doc"
     }, "Doc"), react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", {
       value: "Slide"

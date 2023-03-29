@@ -96,6 +96,10 @@ export default class UniverView extends React.PureComponent {
         case 'DEMO2':
         case 'DEMO3':
         case 'DEMO4':
+        case 'DEMO5':
+        case 'DEMO6':
+        case 'DEMO7':
+        case 'DEMO8':
           this.initSheetByDemoNew(content,setting)
           break;
         case 'Doc':
@@ -249,13 +253,17 @@ export default class UniverView extends React.PureComponent {
   initSheetByDemoNew(demo,setting) {
     const { toolbar } = setting
     const { univerSheetCustom, CommonPluginData,UniverCore } = UniverPreactTs
-    const { DEFAULT_WORKBOOK_DATA_DEMO1,DEFAULT_WORKBOOK_DATA_DEMO2,DEFAULT_WORKBOOK_DATA_DEMO3,DEFAULT_WORKBOOK_DATA_DEMO4 } = CommonPluginData
+    const { DEFAULT_WORKBOOK_DATA_DEMO1,DEFAULT_WORKBOOK_DATA_DEMO2,DEFAULT_WORKBOOK_DATA_DEMO3,DEFAULT_WORKBOOK_DATA_DEMO4,DEFAULT_WORKBOOK_DATA_DEMO5,DEFAULT_WORKBOOK_DATA_DEMO6,DEFAULT_WORKBOOK_DATA_DEMO7,DEFAULT_WORKBOOK_DATA_DEMO8 } = CommonPluginData
     
     const demoInfo = {
       'DEMO1':DEFAULT_WORKBOOK_DATA_DEMO1,
       'DEMO2':DEFAULT_WORKBOOK_DATA_DEMO2,
       'DEMO3':DEFAULT_WORKBOOK_DATA_DEMO3,
       'DEMO4':DEFAULT_WORKBOOK_DATA_DEMO4,
+      'DEMO5':DEFAULT_WORKBOOK_DATA_DEMO5,
+      'DEMO6':DEFAULT_WORKBOOK_DATA_DEMO6,
+      'DEMO7':DEFAULT_WORKBOOK_DATA_DEMO7,
+      'DEMO8':DEFAULT_WORKBOOK_DATA_DEMO8,
     }
     const baseSheetsConfig = {
       

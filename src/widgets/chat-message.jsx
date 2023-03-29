@@ -126,7 +126,7 @@ class BaseChatMessage extends React.PureComponent {
       content = content.txt
     }
 
-    const univerList = ['table','sheet','doc','slide','DEMO1','DEMO2','DEMO3','DEMO4','Doc','Slide','Sheet']
+    const univerList = ['table','sheet','doc','slide','DEMO1','DEMO2','DEMO3','DEMO4','DEMO5','DEMO6','DEMO7','DEMO8','Doc','Slide','Sheet']
     if(typeof content === 'string' && content.indexOf('univerJson') > -1 && content.indexOf('exportJson') > -1){
       attachments.push(<UniverView key={new Date().getTime()} content={content}/>);
     }
