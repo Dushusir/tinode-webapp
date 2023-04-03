@@ -2978,3 +2978,16 @@ ul.tabbar li.active > a {
     opacity: 0.3;
   }
 }
+
+
+.btn-univer-copy {
+  position: absolute;
+  top: 0;
+  right: 37px;
+  z-index: 2;
+  border-radius: 4px;
+}
+
+.btn-univer-copy:hover{
+  color: gray;
+}

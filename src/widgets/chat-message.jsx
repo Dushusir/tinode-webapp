@@ -130,7 +130,7 @@ class BaseChatMessage extends React.PureComponent {
     if(typeof content === 'string' && content.indexOf('univerJson') > -1 && content.indexOf('exportJson') > -1){
       attachments.push(<UniverView key={new Date().getTime()} content={content}/>);
     }
-    else if(typeof content === 'string' && (univerList.includes(content) || (content.indexOf('<table') > -1 && content.indexOf('<td') > -1))){
+    else if(typeof content === 'string' && (univerList.includes(content) || (content.indexOf('<table') > -1 && content.indexOf('<td') > -1) || content.indexOf('luckysheet.lashuju.com/univer/?id=') !== -1)){
       attachments.push(<UniverView key={new Date().getTime()} content={content}/>);
     }
     else if (this.props.mimeType == Drafty.getContentType() && Drafty.isValid(content)) {

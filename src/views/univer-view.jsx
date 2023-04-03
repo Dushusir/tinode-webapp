@@ -2,8 +2,131 @@ import React, { createRef } from 'react';
 import { makeid } from '../lib/utils';
 import * as LuckyExcel from 'luckyexcel';
 
+
+const ipAddress = '47.100.177.253:8500'
+export const urlCollbaration = 'http://luckysheet.lashuju.com/univer/'
+const univer_config = {"type":"sheet","template":"DEMO1"}
+
+
+// 协同
+
+function newDocs(url, params, cb) {
+  fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(params)
+  }).then(response => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        throw new Error(response.statusText);
+      }
+    })
+    .then(document => {
+      // 处理获取到的文档信息
+      console.log(document);
+      cb && cb(document)
+    })
+    .catch(error => {
+      console.error(error);
+      cb(null)
+    }); 
+
+}
+
+
+function openDocs(id,cb) {
+  // 定义请求参数
+      const data = new FormData();
+      data.append('id', id);
+
+      // 创建 XMLHttpRequest 对象
+      const xhr = new XMLHttpRequest();
+
+      // 监听请求完成事件
+      xhr.onload = function() {
+      if (xhr.status === 200) {
+          const document = JSON.parse(xhr.responseText);
+          // 处理获取到的文档信息
+          console.log(document);
+          cb && cb(document)
+      } else {
+          console.error(xhr.statusText);
+      }
+      };
+
+      // 发送 POST 请求
+      xhr.open('POST', 'http://'+ipAddress+'/open', true);
+      xhr.send(data);
+
+}
+function updateDocs(id,config,cb) {
+  // 定义请求参数
+      const data = new FormData();
+      data.append('id', id);
+      data.append('config', JSON.stringify(config));
+
+      // 创建 XMLHttpRequest 对象
+      const xhr = new XMLHttpRequest();
+
+      // 监听请求完成事件
+      xhr.onload = function() {
+      if (xhr.status === 200) {
+          const document = JSON.parse(xhr.responseText);
+          // 处理获取到的文档信息
+          console.log(document);
+          cb && cb(document)
+      } else {
+          console.error(xhr.statusText);
+      }
+      };
+
+      // 发送 POST 请求
+      xhr.open('POST', 'http://'+ipAddress+'/update', true);
+      xhr.send(data);
+
+}
+
+function fallbackCopyTextToClipboard(text) {
+  var textArea = document.createElement("textarea");
+  textArea.value = text;
+  
+  // Avoid scrolling to bottom
+  textArea.style.top = "0";
+  textArea.style.left = "0";
+  textArea.style.position = "fixed";
+
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+
+  try {
+    var successful = document.execCommand('copy');
+    var msg = successful ? 'successful' : 'unsuccessful';
+    console.log('Fallback: Copying text command was ' + msg);
+  } catch (err) {
+    console.error('Fallback: Oops, unable to copy', err);
+  }
+
+  document.body.removeChild(textArea);
+}
+function copyTextToClipboard(text) {
+if (!navigator.clipboard) {
+  fallbackCopyTextToClipboard(text);
+  return;
+}
+navigator.clipboard.writeText(text).then(function() {
+  console.log('Async: Copying to clipboard was successful!');
+}, function(err) {
+  console.error('Async: Could not copy text: ', err);
+});
+}
+
 export default class UniverView extends React.PureComponent {
   ref = createRef()
+  univerId = ''
   componentDidMount() {
     let content = this.props.content
 
@@ -22,6 +145,12 @@ export default class UniverView extends React.PureComponent {
       this.removeContent()
       return
     }
+    // handle http://luckysheet.lashuju.com/univer/?id=nxt0kDHPz3
+    else if(content.indexOf('luckysheet.lashuju.com/univer/?id=') !== -1){
+      const univerId = content.split('?id=')[1];
+      return this.initSheetByDemoNew(content, {univerId})
+    }
+      
     // handle xlsx
     if (typeof content === 'object' && content.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
       this.handleFile(content)
@@ -37,6 +166,7 @@ export default class UniverView extends React.PureComponent {
         toolbar:false,
         isPasteSheet
     }
+
 
     this.initUniverNew(content,config)
     return;
@@ -118,7 +248,7 @@ export default class UniverView extends React.PureComponent {
   }
 
   initSheetNew(tableHTML,setting) {
-    const { toolbar, isPasteSheet } = setting
+    const { toolbar, isPasteSheet,success: cb } = setting
     let cellData = {}
     let mergeData = {}
     let rowData = []
@@ -230,7 +360,28 @@ export default class UniverView extends React.PureComponent {
           name: 'sheet1',
           // columnCount,
           status: 1,
-          cellData
+          cellData,
+          freezeColumn: 1,
+          rowCount: 1000,
+          columnCount: 20,
+          freezeRow: 1,
+          zoomRatio: 1,
+          scrollTop: 200,
+          scrollLeft: 100,
+          defaultColumnWidth: 93,
+          defaultRowHeight: 27,
+          showGridlines: 1,
+          rowTitle: {
+              width: 46,
+              hidden: 0,
+          },
+          columnTitle: {
+              height: 20,
+              hidden: 0,
+          },
+          rowData,
+          columnData,
+          mergeData
         }
       }
     }
@@ -243,28 +394,60 @@ export default class UniverView extends React.PureComponent {
 
     const coreConfig = Object.assign({}, DEFAULT_WORKBOOK_DATA, config)
 
-    univerSheetCustom({
-      coreConfig,
-      baseSheetsConfig,
-      uiSheetsConfig
-    });
+    // 协同
+    newDocs('http://' + ipAddress + '/new', univer_config, (json) => {
+
+        // offline
+        if (json == null) {
+            const universheet = univerSheetCustom({
+                coreConfig,
+                uiSheetsConfig,
+                baseSheetsConfig
+            })
+
+            cb && cb(universheet)
+
+            return
+        }
+
+
+        const id = json.id;
+        const config = json.config;
+
+        if (config === 'default') {
+
+            updateDocs(id, coreConfig, () => {
+                const universheet = univerSheetCustom({
+                    univerConfig: {
+                        id
+                    },
+                    coreConfig,
+                    uiSheetsConfig,
+                    baseSheetsConfig,
+                    collaborationConfig: {
+                        url: `${'ws://' + ipAddress + '/ws/'}${id}`
+                    }
+                })
+
+                cb && cb(universheet)
+
+                this.univerId = universheet.getWorkBook().getContext().getUniver().getGlobalContext().getUniverId();
+            })
+        }
+    })
+
+    // univerSheetCustom({
+    //   coreConfig,
+    //   baseSheetsConfig,
+    //   uiSheetsConfig
+    // });
 
   }
   initSheetByDemoNew(demo,setting) {
-    const { toolbar } = setting
+    const { toolbar,univerId, success: cb} = setting
     const { univerSheetCustom, CommonPluginData,UniverCore } = UniverPreactTs
     const { DEFAULT_WORKBOOK_DATA_DEMO1,DEFAULT_WORKBOOK_DATA_DEMO2,DEFAULT_WORKBOOK_DATA_DEMO3,DEFAULT_WORKBOOK_DATA_DEMO4,DEFAULT_WORKBOOK_DATA_DEMO5,DEFAULT_WORKBOOK_DATA_DEMO6,DEFAULT_WORKBOOK_DATA_DEMO7,DEFAULT_WORKBOOK_DATA_DEMO8 } = CommonPluginData
-    
-    const demoInfo = {
-      'DEMO1':DEFAULT_WORKBOOK_DATA_DEMO1,
-      'DEMO2':DEFAULT_WORKBOOK_DATA_DEMO2,
-      'DEMO3':DEFAULT_WORKBOOK_DATA_DEMO3,
-      'DEMO4':DEFAULT_WORKBOOK_DATA_DEMO4,
-      'DEMO5':DEFAULT_WORKBOOK_DATA_DEMO5,
-      'DEMO6':DEFAULT_WORKBOOK_DATA_DEMO6,
-      'DEMO7':DEFAULT_WORKBOOK_DATA_DEMO7,
-      'DEMO8':DEFAULT_WORKBOOK_DATA_DEMO8,
-    }
+
     const baseSheetsConfig = {
       
       selections: {
@@ -298,16 +481,98 @@ export default class UniverView extends React.PureComponent {
         },
       },
     }
+    
+  if(univerId){
+    openDocs(univerId,(json)=>{
+      const universheetconfig = json.config;
+      const id = json.id;
+
+      const universheet = univerSheetCustom({
+          univerConfig:{
+              id
+          },
+          coreConfig:JSON.parse(universheetconfig),
+          uiSheetsConfig,
+          collaborationConfig:{
+              url: `${'ws://'+ipAddress+'/ws/'}${id}`
+          }
+      });
+
+      cb && cb(universheet)
+
+      this.univerId = universheet.getWorkBook().getContext().getUniver().getGlobalContext().getUniverId();
+
+  })
+
+  return
+  }
+
+    const demoInfo = {
+      'DEMO1':DEFAULT_WORKBOOK_DATA_DEMO1,
+      'DEMO2':DEFAULT_WORKBOOK_DATA_DEMO2,
+      'DEMO3':DEFAULT_WORKBOOK_DATA_DEMO3,
+      'DEMO4':DEFAULT_WORKBOOK_DATA_DEMO4,
+      'DEMO5':DEFAULT_WORKBOOK_DATA_DEMO5,
+      'DEMO6':DEFAULT_WORKBOOK_DATA_DEMO6,
+      'DEMO7':DEFAULT_WORKBOOK_DATA_DEMO7,
+      'DEMO8':DEFAULT_WORKBOOK_DATA_DEMO8,
+    }
+
+
+    
 
     const coreConfig = UniverCore.Tools.deepClone(demoInfo[demo])
 
     coreConfig.id = makeid(6);
     coreConfig.sheetOrder = []
-    univerSheetCustom({
+
+    newDocs('http://'+ipAddress+'/new',univer_config,(json)=>{
+
+  // offline
+  if(json == null){
+    const universheet = univerSheetCustom({
       coreConfig,
-      baseSheetsConfig,
-      uiSheetsConfig
-    });
+      uiSheetsConfig,
+      baseSheetsConfig
+    })
+  
+    cb && cb(universheet)
+
+    return
+  }
+
+
+  const id = json.id;
+  const config = json.config;
+
+  if(config === 'default'){
+
+    updateDocs(id,coreConfig,()=>{
+      const universheet = univerSheetCustom({
+        univerConfig:{
+            id
+        },
+        coreConfig,
+        uiSheetsConfig,
+        baseSheetsConfig,
+        collaborationConfig:{
+          url: `${'ws://'+ipAddress+'/ws/'}${id}`
+      }
+      })
+    
+      cb && cb(universheet)
+
+      this.univerId = universheet.getWorkBook().getContext().getUniver().getGlobalContext().getUniverId();
+    })
+  }
+  
+})
+
+    // univerSheetCustom({
+    //   coreConfig,
+    //   baseSheetsConfig,
+    //   uiSheetsConfig
+    // });
 
   }
   initDocNew(setting) {
@@ -679,8 +944,17 @@ export default class UniverView extends React.PureComponent {
     if (node && node.nodeType === Node.TEXT_NODE) {
       const univerList = ['table','sheet','doc','slide','DEMO1','DEMO2','DEMO3','DEMO4','Doc','Slide','Sheet']
       const content = node.textContent
-      if (univerList.includes(content) || (content.indexOf('<table') > -1 && content.indexOf('<td') > -1) || (content.indexOf('univerJson') > -1 && content.indexOf('exportJson') > -1)) {
+      if (univerList.includes(content) || (content.indexOf('<table') > -1 && content.indexOf('<td') > -1) || (content.indexOf('univerJson') > -1 && content.indexOf('exportJson') > -1) || content.indexOf('luckysheet.lashuju.com/univer/?id=') !== -1) {
         node.textContent = '';
+
+        this.ref.current.insertAdjacentHTML('afterbegin', '<button class="btn-univer-copy">复制</button>');
+
+        const btnUniverCopy = this.ref.current.querySelector('.btn-univer-copy');
+        btnUniverCopy.addEventListener('click', () => {
+          const url = urlCollbaration + '?id=' + this.univerId;
+          copyTextToClipboard(url);
+          alert('copy url success:  ' + url)
+      })
       }
     }
   }

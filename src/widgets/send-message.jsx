@@ -186,13 +186,16 @@ class SendMessage extends React.PureComponent {
     const item  = items[0]
     // const itemHTML = items[1]
     const itemHTML = e.clipboardData.getData('text/html');
+    const itemText = e.clipboardData.getData('text/plain');
 
     if(itemHTML && itemHTML.indexOf('xmlns:x="urn:schemas-microsoft-com:office:excel"') > -1){
       this.props.onSendMessage(itemHTML);
       this.setState({message: ''});
       return
 
-    }else if(message.indexOf('<table') > -1 && message.indexOf('<td') > -1){
+    }
+    
+    else if( (itemText.indexOf('luckysheet.lashuju.com/univer/?id=') !== -1) || (itemHTML.indexOf('<table') > -1 && itemHTML.indexOf('<td') > -1) || (itemText.indexOf('<table') > -1 && itemText.indexOf('<td') > -1)  || (message.indexOf('<table') > -1 && message.indexOf('<td') > -1)){
       item.getAsString((message)=>{
           this.props.onSendMessage(message);
           this.setState({message: ''});
