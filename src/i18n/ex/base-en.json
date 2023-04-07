@@ -468,6 +468,10 @@
     "defaultMessage": "Clear for All",
     "description": "Delete all message(s) for all members"
   },
+  "menu_item_copy": {
+    "defaultMessage": "Copy",
+    "description": "Copy Univer Component"
+  },
   "menu_item_delete": {
     "defaultMessage": "Delete",
     "description": "Delete selected messages"

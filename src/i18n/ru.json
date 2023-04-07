@@ -1451,5 +1451,12 @@
     "description": "Message explaining that the credential was successfully validated.",
     "missing": false,
     "obsolete": false
+  },
+  "menu_item_copy": {
+    "translation": "",
+    "defaultMessage": "Copy",
+    "description": "Copy Univer Component",
+    "missing": true,
+    "obsolete": false
   }
 }

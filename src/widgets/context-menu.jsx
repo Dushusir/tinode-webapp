@@ -4,6 +4,41 @@ import { injectIntl, defineMessages } from 'react-intl';
 
 import { REM_SIZE } from '../config.js';
 
+function fallbackCopyTextToClipboard(text) {
+  var textArea = document.createElement("textarea");
+  textArea.value = text;
+  
+  // Avoid scrolling to bottom
+  textArea.style.top = "0";
+  textArea.style.left = "0";
+  textArea.style.position = "fixed";
+
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+
+  try {
+    var successful = document.execCommand('copy');
+    var msg = successful ? 'successful' : 'unsuccessful';
+    console.log('Fallback: Copying text command was ' + msg);
+  } catch (err) {
+    console.error('Fallback: Oops, unable to copy', err);
+  }
+
+  document.body.removeChild(textArea);
+}
+function copyTextToClipboard(text) {
+if (!navigator.clipboard) {
+  fallbackCopyTextToClipboard(text);
+  return;
+}
+navigator.clipboard.writeText(text).then(function() {
+  console.log('Async: Copying to clipboard was successful!');
+}, function(err) {
+  console.error('Async: Could not copy text: ', err);
+});
+}
+
 const messages = defineMessages({
   info: {
     id: 'menu_item_info',
@@ -49,6 +84,11 @@ const messages = defineMessages({
     id: 'menu_item_reply',
     defaultMessage: 'Reply',
     description: 'Reply to message'
+  },
+  copy: {
+    id: 'menu_item_copy',
+    defaultMessage: 'Copy',
+    description: 'Copy Univer Component'
   },
   forward: {
     id: 'menu_item_forward',
@@ -186,6 +226,26 @@ class ContextMenu extends React.Component {
         title: formatMessage(messages.reply),
         handler: (params, errorHandler) => {
           return this.replyToMessage(params, errorHandler);
+        }
+      },
+      'menu_item_copy': {
+        id: 'menu_item_copyy',
+        title: formatMessage(messages.copy),
+        handler: (params, errorHandler) => {
+          const urlCollbaration = 'http://luckysheet.lashuju.com/univer/'
+          const univerId = params.innerRef.current.querySelector('.univer-demo').getAttribute('data-univerId')
+          const url = urlCollbaration + '?id=' + univerId;
+          copyTextToClipboard(url);
+
+          const notification = document.getElementById("notification");
+          // 显示复制成功提示框
+          notification.innerText = "Copy success!";
+          notification.style.right = "20px";
+          
+          // 2秒后隐藏提示框
+          setTimeout(() => {
+            notification.style.right = "-200px";
+          }, 1000);
         }
       },
       'menu_item_forward': {

@@ -1914,6 +1914,7 @@ class TinodeWeb extends React.Component {
           :
           null
         }
+        <div id="notification"></div>
         {this.state.forwardDialogVisible ?
           <ForwardDialog
             tinode={this.tinode}

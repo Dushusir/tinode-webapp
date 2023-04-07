@@ -70,7 +70,7 @@ class BaseChatMessage extends React.PureComponent {
     this.props.onFormResponse(e.target.dataset.act, text, data);
   }
 
-  handleContextClick(e) {
+  handleContextClick(e,innerRef) {
     e.preventDefault();
     e.stopPropagation();
     const menuItems = [];
@@ -83,6 +83,7 @@ class BaseChatMessage extends React.PureComponent {
       menuItems.push('menu_item_reply');
     }
     menuItems.push('menu_item_forward');
+    menuItems.push('menu_item_copy');
 
     this.props.showContextMenu({
       seq: this.props.seq,
@@ -91,7 +92,8 @@ class BaseChatMessage extends React.PureComponent {
       userName: this.props.userName,
       y: e.pageY,
       x: e.pageX,
-      pickReply: this.props.pickReply
+      pickReply: this.props.pickReply,
+      innerRef
     }, menuItems);
   }
 
@@ -195,7 +197,7 @@ class BaseChatMessage extends React.PureComponent {
             </div>
             {this.props.showContextMenu ?
               <span className="menuTrigger">
-                <a href="#" onClick={this.handleContextClick}>
+                <a href="#" onClick={(e) => this.handleContextClick(e,this.props.innerRef)}>
                   <i className="material-icons">expand_more</i>
                 </a>
               </span> : null

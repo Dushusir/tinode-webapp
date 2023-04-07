@@ -732,6 +732,7 @@ class MessagesView extends React.Component {
       if (acs && acs.isDeleter()) {
         menuItems.push('message_delete_hard');
       }
+      
     }
     this.props.showContextMenu(params, menuItems);
   }

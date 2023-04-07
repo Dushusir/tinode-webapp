@@ -89,40 +89,30 @@ function updateDocs(id,config,cb) {
 
 }
 
-function fallbackCopyTextToClipboard(text) {
-  var textArea = document.createElement("textarea");
-  textArea.value = text;
-  
-  // Avoid scrolling to bottom
-  textArea.style.top = "0";
-  textArea.style.left = "0";
-  textArea.style.position = "fixed";
 
-  document.body.appendChild(textArea);
-  textArea.focus();
-  textArea.select();
+function refresh(params) {
+  const rootEle = document.querySelector('.affine-default-viewport');
+  if (!rootEle) return;
 
-  try {
-    var successful = document.execCommand('copy');
-    var msg = successful ? 'successful' : 'unsuccessful';
-    console.log('Fallback: Copying text command was ' + msg);
-  } catch (err) {
-    console.error('Fallback: Oops, unable to copy', err);
-  }
+  var config = {
+    childList: true,
+    subtree: true,
+  };
+  var time = null;
+  new MutationObserver(() => {
+    if (time) {
+      clearTimeout(time);
+      time = null;
+    }
 
-  document.body.removeChild(textArea);
+    time = setTimeout(() => {
+
+      window.dispatchEvent(new Event('resize', {}));
+    }, 500);
+  }).observe(rootEle, config);
 }
-function copyTextToClipboard(text) {
-if (!navigator.clipboard) {
-  fallbackCopyTextToClipboard(text);
-  return;
-}
-navigator.clipboard.writeText(text).then(function() {
-  console.log('Async: Copying to clipboard was successful!');
-}, function(err) {
-  console.error('Async: Could not copy text: ', err);
-});
-}
+
+
 
 export default class UniverView extends React.PureComponent {
   ref = createRef()
@@ -207,6 +197,9 @@ export default class UniverView extends React.PureComponent {
 
   }
   initUniverNew(content,setting){
+
+    refresh()
+
     const {isPasteSheet} = setting
     if (isPasteSheet) {
       this.initSheetNew(content,setting)
@@ -368,8 +361,8 @@ export default class UniverView extends React.PureComponent {
           zoomRatio: 1,
           scrollTop: 200,
           scrollLeft: 100,
-          defaultColumnWidth: 93,
-          defaultRowHeight: 27,
+          defaultColumnWidth: 72,
+          defaultRowHeight: 19,
           showGridlines: 1,
           rowTitle: {
               width: 46,
@@ -432,6 +425,7 @@ export default class UniverView extends React.PureComponent {
                 cb && cb(universheet)
 
                 this.univerId = universheet.getWorkBook().getContext().getUniver().getGlobalContext().getUniverId();
+                this.ref.current.setAttribute('data-univerId',this.univerId);
             })
         }
     })
@@ -501,6 +495,7 @@ export default class UniverView extends React.PureComponent {
       cb && cb(universheet)
 
       this.univerId = universheet.getWorkBook().getContext().getUniver().getGlobalContext().getUniverId();
+      this.ref.current.setAttribute('data-univerId',this.univerId);
 
   })
 
@@ -563,6 +558,7 @@ export default class UniverView extends React.PureComponent {
       cb && cb(universheet)
 
       this.univerId = universheet.getWorkBook().getContext().getUniver().getGlobalContext().getUniverId();
+      this.ref.current.setAttribute('data-univerId',this.univerId);
     })
   }
   
@@ -596,10 +592,18 @@ export default class UniverView extends React.PureComponent {
         
       },
     }
-    univerDocCustom({
+    const univerdoc = univerDocCustom({
       coreConfig,
       uiDocsConfig,
     });
+
+    // window.addEventListener('resize', function (event) {
+    //   console.log('resize doc')
+    //   univerdoc._context
+    //     .getPluginManager()
+    //     .getRequirePluginByName('document').getDocsView().scrollToCenter();
+    // }, true);
+
   }
   initSlideNew(setting) {
     const { toolbar } = setting
@@ -622,10 +626,20 @@ export default class UniverView extends React.PureComponent {
         
       },
     }
-    univerSlideCustom({
+    const universlide = univerSlideCustom({
       coreConfig,
       uiSlidesConfig,
     });
+
+    
+  // window.addEventListener('resize', function (event) {
+  //   console.log('resize slide')
+  //   universlide._context
+  //     .getPluginManager()
+  //     .getPluginByName('slide')
+  //     .getCanvasView()
+  //     .scrollToCenter();
+  // }, true);
   }
 
   initSheetDefaultData() {
@@ -764,8 +778,6 @@ export default class UniverView extends React.PureComponent {
 
   }
   initSheetByDemo(demo) {
-
-    
 
     const { univerSheetCustom, CommonPluginData,UniverCore } = UniverPreactTs
     const { DEFAULT_WORKBOOK_DATA_DEMO1,DEFAULT_WORKBOOK_DATA_DEMO2,DEFAULT_WORKBOOK_DATA_DEMO3,DEFAULT_WORKBOOK_DATA_DEMO4 } = CommonPluginData
@@ -942,19 +954,20 @@ export default class UniverView extends React.PureComponent {
   removeContent() {
     const node = this.ref.current && this.ref.current.previousSibling && this.ref.current.previousSibling
     if (node && node.nodeType === Node.TEXT_NODE) {
-      const univerList = ['table','sheet','doc','slide','DEMO1','DEMO2','DEMO3','DEMO4','Doc','Slide','Sheet']
+      const univerList = ['table','sheet','doc','slide','DEMO1','DEMO2','DEMO3','DEMO4','DEMO5','DEMO6','DEMO7','DEMO8','Doc','Slide','Sheet']
       const content = node.textContent
       if (univerList.includes(content) || (content.indexOf('<table') > -1 && content.indexOf('<td') > -1) || (content.indexOf('univerJson') > -1 && content.indexOf('exportJson') > -1) || content.indexOf('luckysheet.lashuju.com/univer/?id=') !== -1) {
         node.textContent = '';
 
-        this.ref.current.insertAdjacentHTML('afterbegin', '<button class="btn-univer-copy">复制</button>');
 
-        const btnUniverCopy = this.ref.current.querySelector('.btn-univer-copy');
-        btnUniverCopy.addEventListener('click', () => {
-          const url = urlCollbaration + '?id=' + this.univerId;
-          copyTextToClipboard(url);
-          alert('copy url success:  ' + url)
-      })
+      //   this.ref.current.insertAdjacentHTML('afterbegin', '<button class="btn-univer-copy">复制</button>');
+
+      //   const btnUniverCopy = this.ref.current.querySelector('.btn-univer-copy');
+      //   btnUniverCopy.addEventListener('click', () => {
+      //     const url = urlCollbaration + '?id=' + this.univerId;
+      //     copyTextToClipboard(url);
+      //     alert('copy url success:  ' + url)
+      // })
       }
     }
   }
