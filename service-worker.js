@@ -1,7 +1,7 @@
 // Must be located at the root.
 // FIXME: update Firebase version.
-importScripts('https://gcore.jsdelivr.net/npm/firebase@8.10.1/firebase-app.js');
-importScripts('https://gcore.jsdelivr.net/npm/firebase@8.10.1/firebase-messaging.js');
+importScripts('https://fastly.jsdelivr.net/npm/firebase@8.10.1/firebase-app.js');
+importScripts('https://fastly.jsdelivr.net/npm/firebase@8.10.1/firebase-messaging.js');
 importScripts('firebase-init.js');
 importScripts('version.js');
 

@@ -243,7 +243,7 @@ export default class UniverView extends React.PureComponent {
   initSheetNew(tableHTML,setting) {
     const { toolbar, isPasteSheet,success: cb } = setting
     let cellData = {}
-    let mergeData = {}
+    let mergeData = []
     let rowData = []
     let columnData = []
 

@@ -9718,7 +9718,7 @@ class UniverView extends (react__WEBPACK_IMPORTED_MODULE_0___default().PureCompo
       success: cb
     } = setting;
     let cellData = {};
-    let mergeData = {};
+    let mergeData = [];
     let rowData = [];
     let columnData = [];
     if (isPasteSheet) {
